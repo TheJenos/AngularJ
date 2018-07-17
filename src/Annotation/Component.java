@@ -24,4 +24,5 @@ public @interface Component {
     boolean Replace() default false;
     String TemplateURL() default "";
     String Controller() default "";
+    String[] ControllerPara() default {};
 }

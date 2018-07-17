@@ -6,10 +6,9 @@
 package Servlets;
 
 import Controller.AngularJ;
-import static Controller.AngularJ.DEBUG;
+import Controller.AngularJComponent;
+import Controller.Framework;
 import Utills.XMLReader;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -23,16 +22,22 @@ import org.w3c.dom.NodeList;
  *
  * @author TheJenos
  */
-@WebServlet(name = "AngulerJ", urlPatterns = {"/AngulerJ.js"})
-public class Ng extends HttpServlet {
+@WebServlet(name = "AngulerJServer", urlPatterns = {"/AngulerJ"})
+public class Server extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            XMLReader xr = XMLReader.getInstance();
-            NodeList nodeByName = xr.getNodeByName("property");
-            new AngularJ(request, response, xr.getBooleanSelectedNodeData(nodeByName, "type", "DEBUG"), xr.getSelectedNodeData(nodeByName, "type", "Package"));
+            if (request.getParameter("Controller") != null) {
+                AngularJComponent js = null;
+                XMLReader xr = XMLReader.getInstance();
+                Class<AngularJComponent> c = (Class<AngularJComponent>) Class.forName(xr.getSelectedNodeData("type", "Package") + "." + request.getParameter("Controller") + "." + request.getParameter("Controller"));
+                js = c.newInstance();
+                js.onInit();
+                new Framework(js, request, response, AngularJ.DEBUG);
+                js.onDestroy();
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(AngularJ.DEBUG)e.printStackTrace();
         }
     }
 

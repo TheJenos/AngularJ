@@ -38,15 +38,10 @@ import sun.misc.IOUtils;
  */
 public class AngularJ {
 
-    public enum Return {
-        JS, JSON
-    }
-
     HttpServletRequest Request;
     HttpServletResponse Response;
-    boolean DEBUG;
+    public static boolean DEBUG = true;
     String Package;
-    Return ret;
 
     /*
         Connect object and sevelt
@@ -87,6 +82,9 @@ public class AngularJ {
                     }
                     jo.put("controller", sb.toString());
                 }
+                if (comp.ControllerPara().length > 0) {
+                    jo.put("controllerpara", comp.ControllerPara());
+                }
                 if (!comp.TemplateURL().equals("")) {
                     jo.put("templateUrl", Request.getRequestURI() + "?file=" + jo.getString("selector") + URLEncoder.encode("/", "UTF-8") + comp.TemplateURL());
                 } else {
@@ -95,11 +93,7 @@ public class AngularJ {
                 jarray.put(jo);
 
             }
-            if (ret == Return.JSON) {
-                Response.getWriter().println(jarray.toString());
-            } else if (ret == Return.JS) {
-                Response.getWriter().println(printDirectives(jarray));
-            }
+            Response.getWriter().println(printDirectives(jarray));
         } catch (Exception ex) {
             if (DEBUG) {
                 ex.printStackTrace();
@@ -129,12 +123,19 @@ public class AngularJ {
         String ret = "angular.module(\"angularj\", [])";
         for (int i = 0; i < array.length(); i++) {
             JSONObject get = array.getJSONObject(i);
+            String para = "";
+            if (get.has("controllerpara")) {
+                for (int j = 0; j < get.getJSONArray("controllerpara").length(); j++) {
+                    String paralines = get.getJSONArray("controllerpara").getString(j);
+                    para += "," + paralines;
+                }
+            }
             ret += ".directive(\"" + get.getString("selector") + "\", function () {\n"
                     + "    return {\n"
                     + "        scope: " + get.getJSONObject("scope") + ",\n"
                     + "        restrict: '" + get.getString("restrict") + "',\n"
                     + "        replace: " + get.getBoolean("replace") + ",\n"
-                    + (get.has("controller") ? "        controller : " + get.getString("controller") + ",\n" : "")
+                    + "        controller : function($scope" + para + "){$scope.$server = new JSframwork(\"AngulerJ?Controller="+get.getString("selector")+"\");" + get.getString("controller") + "},\n"
                     + (get.has("template") ? "        template: '" + get.getString("template") + "',\n" : "")
                     + (get.has("templateUrl") ? "        templateUrl: '" + get.getString("templateUrl") + "',\n" : "")
                     + "        transclude: '" + get.getBoolean("transclude") + "'\n"
@@ -175,12 +176,11 @@ public class AngularJ {
         }
     }
 
-    public AngularJ(HttpServletRequest Request, HttpServletResponse Response, boolean DEBUG, String Package, Return ret) {
+    public AngularJ(HttpServletRequest Request, HttpServletResponse Response, boolean DEBUG, String Package) {
         this.Request = Request;
         this.Response = Response;
         this.DEBUG = DEBUG;
         this.Package = Package;
-        this.ret = ret;
         if (Request.getParameter("file") != null) {
             this.getFile(Request.getParameter("file"));
         } else {
