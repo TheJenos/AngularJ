@@ -6,6 +6,7 @@
 package Controller;
 
 import Annotation.Component;
+import Utills.Statics;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,10 +66,13 @@ public class AngularJ {
                     jo.put("selector", allClasse.getSimpleName());
                 }
                 JSONObject scope = new JSONObject();
+                JSONArray scopeval = new JSONArray();
                 for (String string : comp.Scope()) {
                     scope.put(string.split(":")[0], string.split(":")[1]);
+                    scopeval.put(string.split(":")[0]);
                 }
                 jo.put("scope", scope);
+                jo.put("scopeval", scopeval);
                 jo.put("replace", comp.Replace());
                 jo.put("transclude", comp.Transclude());
                 jo.put("restrict", comp.Restrict());
@@ -120,7 +124,7 @@ public class AngularJ {
     }
 
     public String printDirectives(JSONArray array) {
-        String ret = "angular.module(\"angularj\", [])";
+        String ret = Statics.js + "angular.module(\"angularj\", [])";
         for (int i = 0; i < array.length(); i++) {
             JSONObject get = array.getJSONObject(i);
             String para = "";
@@ -130,16 +134,21 @@ public class AngularJ {
                     para += "," + paralines;
                 }
             }
-            ret += ".directive(\"" + get.getString("selector") + "\", function () {\n"
-                    + "    return {\n"
-                    + "        scope: " + get.getJSONObject("scope") + ",\n"
-                    + "        restrict: '" + get.getString("restrict") + "',\n"
-                    + "        replace: " + get.getBoolean("replace") + ",\n"
-                    + "        controller : function($scope" + para + "){$scope.$server = new JSframwork(\"AngulerJ?Controller="+get.getString("selector")+"\");" + get.getString("controller") + "},\n"
-                    + (get.has("template") ? "        template: '" + get.getString("template") + "',\n" : "")
-                    + (get.has("templateUrl") ? "        templateUrl: '" + get.getString("templateUrl") + "',\n" : "")
-                    + "        transclude: '" + get.getBoolean("transclude") + "'\n"
-                    + "    };\n"
+            String inputs = "";
+            for (int j = 0; j < get.getJSONArray("scopeval").length(); j++) {
+                String paralines = get.getJSONArray("scopeval").getString(j);
+                inputs += paralines + ":angular.copy($scope." + paralines + "),";
+            }
+            ret += ".directive(\"" + get.getString("selector") + "\", function () {"
+                    + "return {"
+                    + "scope: " + get.getJSONObject("scope") + ","
+                    + "restrict: '" + get.getString("restrict") + "',"
+                    + "replace: " + get.getBoolean("replace") + ","
+                    + "controller : function($scope" + para + "){$scope.$server = new JSframwork(\"AngulerJ?Controller=" + get.getString("selector") + "\",$scope);" + get.getString("controller") + "},"
+                    + (get.has("template") ? "template: '" + get.getString("template") + "',\n" : "")
+                    + (get.has("templateUrl") ? "templateUrl: '" + get.getString("templateUrl") + "',\n" : "")
+                    + "transclude: '" + get.getBoolean("transclude") + "'"
+                    + "};"
                     + "})";
         }
         return ret;

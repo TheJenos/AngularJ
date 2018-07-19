@@ -69,8 +69,12 @@ public class Framework {
     public void getData() {
         if (requ.getContentType() != null && requ.getContentType().contains("multipart/form-data")) {
             MultiPartReader mpr = new MultiPartReader(requ);
+            obj.set$parent(new JSONObject(mpr.getMutiStringParameter("parent")));
+            obj.set$scope(new JSONObject(mpr.getMutiStringParameter("inputs")));
             runMethods_Multi(mpr.getSingleStringParameter("run"), mpr);
         } else if (requ.getParameter("run") != null) {
+            obj.set$parent(new JSONObject(requ.getParameter("parent")));
+            obj.set$scope(new JSONObject(requ.getParameter("inputs")));
             runMethods(requ.getParameter("run"));
         } else {
             sendDataToJSON();
@@ -86,9 +90,15 @@ public class Framework {
             if (this.debug) {
                 this.json.put("MethodName", parameter);
             }
+            if (obj.get$parent().length() > 0) {
+                this.json.put("parent", obj.get$parent());
+            }
+            if (obj.get$scope().length() > 0) {
+                this.json.put("scope", obj.get$scope());
+            }
             if (Return instanceof File) {
                 File ff = (File) Return;
-                this.obj.getResp().setHeader("Content-Disposition", "attachment; filename=\"" + ff.getName()+ "\"");
+                this.obj.getResp().setHeader("Content-Disposition", "attachment; filename=\"" + ff.getName() + "\"");
                 java.io.FileInputStream fileInputStream = new java.io.FileInputStream(ff);
                 int i;
                 while ((i = fileInputStream.read()) != -1) {
@@ -126,10 +136,18 @@ public class Framework {
             } else {
                 Return = c.getMethod(parameter, null).invoke(this.obj, null);
             }
-            if(Return == null ) return;
+            if (obj.get$parent().length() > 0) {
+                this.json.put("parent", obj.get$parent());
+            }
+            if (obj.get$scope().length() > 0) {
+                this.json.put("scope", obj.get$scope());
+            }
+            if (Return == null) {
+                return;
+            }
             if (Return instanceof File) {
                 File ff = (File) Return;
-                this.obj.getResp().setHeader("Content-Disposition", "attachment; filename=\"" + ff.getName()+ "\"");
+                this.obj.getResp().setHeader("Content-Disposition", "attachment; filename=\"" + ff.getName() + "\"");
                 java.io.FileInputStream fileInputStream = new java.io.FileInputStream(ff);
                 int i;
                 while ((i = fileInputStream.read()) != -1) {
@@ -140,9 +158,9 @@ public class Framework {
                 this.json.put("Return", Return);
             }
         } catch (Exception ex) {
-            if(ex.getCause()!=null){
+            if (ex.getCause() != null) {
                 this.json.put("ErrorMsg", ex.getCause().getMessage());
-            }else{
+            } else {
                 this.json.put("ErrorMsg", ex.getMessage());
                 ex.printStackTrace();
             }

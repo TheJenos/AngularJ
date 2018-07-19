@@ -1,3 +1,4 @@
+
 # AngulerJ[Java EE 7]
 
 AngulerJ is a modules hybrid framwork that help to code faster and smarter. Also it helps to understand easily 
@@ -7,10 +8,9 @@ AngulerJ is a modules hybrid framwork that help to code faster and smarter. Also
 it's simple to implement. just add the jar file to your project. That's all.
 
 ### Prerequisites
-this is a AngulerJS bases framework. so we have to add AngulerJS file. there is framework called JSFramwork. we need to add that to. don't worry "AngulerJ.js" file comes with my jar. main thing is you have to upgrade your project to java EE 7 or higher
+this is a AngulerJS bases framework. so we have to add AngulerJS file. don't worry "AngulerJ.js" file comes with this jar. But main thing is, you have to upgrade your project to java EE 7 or higher
 ```
 <script type="text/javascript" src="angular.min.js" ></script>
-<script type="text/javascript" src="JSframwork.min.js" ></script>
 <script type="text/javascript" src="AngulerJ.js"></script>
 ```
 
@@ -26,17 +26,20 @@ Create a XML file("AngulerJ.xml") on default project. and paste these lines
 ```
  <property type="Package">pkg</property>
 ```
-Now create a subpackage And add Class file to it. Also both name must be the same and first letter must be a lowcase one.
+Now create a sub-package And add class file to it. Also both name must be the same and first letter must be a lowercase one.
 ```
 pkg.testbutton.testbutton
 ```
-This is the sample structue of the AngularJComponent
+This is the sample structure of the AngularJComponent. you can also access $scope and $parent from server
 ```
 @Component()
 public class testbutton extends AngularJComponent{
 /* your codes */
     public String Test(){
         System.out.println("test");
+        get$scope().put("serverScopetxt", "test");
+	    System.out.println(get$scope().getString("test1"));
+	    get$parent().put("serverParenttxt", "test");
         return new Date().toString();
     }
 }
@@ -77,10 +80,9 @@ angular.module("home", ['angularj']);
 
 ## Built With
 
-* AngulerJS, JSframework - The web framework used
+* AngulerJS - The web framework used
 * GlassFish - Use with Java EE 7
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

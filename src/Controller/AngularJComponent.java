@@ -15,18 +15,32 @@ import org.json.JSONObject;
  */
 public class AngularJComponent {
 
-    private JSONObject attributes;
-
-    public void setAttributes(JSONObject attributes) {
-        this.attributes = attributes;
-    }
-
-    public JSONObject getAttributes() {
-        return attributes;
-    }
-
+    private JSONObject $scope;
+    private JSONObject $parent;
     private HttpServletRequest requ;
     private HttpServletResponse resp;
+
+    public void onInit() {
+    }
+
+    public void onDestroy() {
+    }
+
+    public JSONObject get$parent() {
+        return $parent;
+    }
+
+    public void set$parent(JSONObject $parent) {
+        this.$parent = $parent;
+    }
+    
+    public JSONObject get$scope() {
+        return $scope;
+    }
+
+    public void set$scope(JSONObject $scope) {
+        this.$scope = $scope;
+    }
 
     public void setRequ(HttpServletRequest requ) {
         this.requ = requ;
@@ -44,12 +58,8 @@ public class AngularJComponent {
         this.resp = resp;
     }
 
-    public void onInit(){};
-
     public String template() {
         return "";
     }
-
-     public void onDestroy(){};
 
 }
